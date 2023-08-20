@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nest Web Socket Programming</title>
+</head>
+
+<body>
+    <h3>Nestjs WebSockets</h3>
+    <input name="name" id="nameInput">
+    <input name="age" id="ageInput">
+    <input name="message" id="messageInput">
+    <button type="button" onclick="sendMessage()">send</button>
+    <h4>Messages</h4>
+    <ol id="messageContainer" style="padding-left: 15px;">
+    </ol>
+</body>
+<script src="https://cdn.socket.io/4.3.2/socket.io.min.js" integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs"
+    crossorigin="anonymous"></script>
+<script>
+    let messageContainer = document.getElementById("messageContainer");
+    let nameInput = document.getElementById("nameInput");
+    let ageInput = document.getElementById("ageInput");
+    let messageBox = document.getElementById("messageInput");
+    const socket = io('http://localhost:3000');
+    socket.on('connect', function () {
+        socket.emit('identity', 0, response =>
+            console.log('Identity:', response),
+        );
+    });
+    socket.on('msgToClient', function (data) {
+        messageContainer.appendChild(document.createElement('li')).appendChild(document.createTextNode(`
+        ${data.user.name},${data.user.age} : ${data.message}`));
+    });
+    socket.on('exception', function (data) {
+        console.log(data);
+    });
+    socket.on('disconnect', function () {
+        console.log('Disconnected');
+    });
+    function sendMessage() {
+        socket.emit('msgToServer', {user: {name: nameInput.value, age: ageInput.value}, message: messageBox.value});
+        messageBox.value = "";
+    }
+</script>
+
+</html>
